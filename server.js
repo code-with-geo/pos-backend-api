@@ -6,6 +6,9 @@ import { SuppliersRoute } from "./src/routes/suppliersRoute.js";
 import { LocationsRoute } from "./src/routes/locationsRoute.js";
 import { CategoryRoute } from "./src/routes/categoryRoute.js";
 import { ProductsRoute } from "./src/routes/productsRoute.js";
+import { DiscountsRouter } from "./src/routes/discountsRoute.js";
+import { InventoryRouter } from "./src/routes/inventoryRoute.js";
+import { CustomersRouter } from "./src/routes/customersRoute.js";
 
 dotenv.config();
 
@@ -24,6 +27,12 @@ app.use("/api/locations", LocationsRoute);
 app.use("/api/category", CategoryRoute);
 // Products routes
 app.use("/api/products", ProductsRoute);
+// Discounts routes
+app.use("/api/discounts", DiscountsRouter);
+// Invetory routes
+app.use("/api/inventory", InventoryRouter);
+// Invetory routes
+app.use("/api/customers", CustomersRouter);
 
 const PORT = process.env.PORT || 5000;
 
