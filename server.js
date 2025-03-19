@@ -9,6 +9,7 @@ import { ProductsRoute } from "./src/routes/productsRoute.js";
 import { DiscountsRouter } from "./src/routes/discountsRoute.js";
 import { InventoryRouter } from "./src/routes/inventoryRoute.js";
 import { CustomersRouter } from "./src/routes/customersRoute.js";
+import { OrdersRouter } from "./src/routes/ordersRoute.js";
 
 dotenv.config();
 
@@ -31,8 +32,10 @@ app.use("/api/products", ProductsRoute);
 app.use("/api/discounts", DiscountsRouter);
 // Invetory routes
 app.use("/api/inventory", InventoryRouter);
-// Invetory routes
+// Customer routes
 app.use("/api/customers", CustomersRouter);
+// Orders routes
+app.use("/api/orders", OrdersRouter);
 
 const PORT = process.env.PORT || 5000;
 
