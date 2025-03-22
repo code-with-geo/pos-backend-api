@@ -93,7 +93,35 @@ export class Products {
 
   // Get all products
   static async getAllProducts() {
-    const [result] = await dbConnection.query("SELECT * FROM Products");
-    return result;
+    const query = `
+    SELECT P.Id, 
+           P.Barcode, 
+           P.Name, 
+           P.Description, 
+           P.SupplierPrice, 
+           P.RetailPrice,
+           P.WholesalePrice,
+           P.ReorderLevel,
+           P.Remarks,
+           P.IsVat,
+           P.Status,
+           P.DateCreated,
+           P.CategoryId AS ProductCategoryId,
+           C.CategoryId AS CategoryId,
+           C.Name AS CategoryName
+    FROM Products P 
+    INNER JOIN Category C ON P.CategoryId = C.CategoryId;
+  `;
+
+    console.log("Executing SQL Query:\n", query);
+
+    try {
+      const [result] = await dbConnection.query(query);
+      console.log("Query Result:\n", JSON.stringify(result, null, 2));
+      return result;
+    } catch (error) {
+      console.error("Query Execution Error:", error);
+      return [];
+    }
   }
 }

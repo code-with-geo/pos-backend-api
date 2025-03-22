@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import dotenv from "dotenv";
 import { AuthRouter } from "./src/routes/authRoute.js";
 import { UsersRouter } from "./src/routes/usersRoute.js";
@@ -10,11 +11,20 @@ import { DiscountsRouter } from "./src/routes/discountsRoute.js";
 import { InventoryRouter } from "./src/routes/inventoryRoute.js";
 import { CustomersRouter } from "./src/routes/customersRoute.js";
 import { OrdersRouter } from "./src/routes/ordersRoute.js";
+import { DeliveryRouter } from "./src/routes/deliveryRoute.js";
 
 dotenv.config();
 
 const app = express();
 app.use(express.json());
+
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+    methods: "GET,POST,PUT,DELETE",
+    credentials: true,
+  })
+);
 
 // Authentication routes
 app.use("/api/auth", AuthRouter);
@@ -36,6 +46,8 @@ app.use("/api/inventory", InventoryRouter);
 app.use("/api/customers", CustomersRouter);
 // Orders routes
 app.use("/api/orders", OrdersRouter);
+// Delivery routes
+app.use("/api/delivery", DeliveryRouter);
 
 const PORT = process.env.PORT || 5000;
 
