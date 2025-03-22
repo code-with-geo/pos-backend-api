@@ -31,4 +31,38 @@ export class DeliveryController {
       res.status(500).json({ error: "Internal server error" });
     }
   }
+
+  static async completeDelivery(req, res) {
+    try {
+      const { deliveryId } = req.body;
+      const result = await DeliveryModel.completeDelivery(deliveryId);
+
+      if (!result.success) {
+        res.status(400).json({ message: "Failed on completing delivery" });
+      }
+
+      res.status(201).json({ message: "Successful on completing delivery" });
+    } catch (error) {
+      console.error("Error completing order:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }
+
+  static async getAllPendingDeliveryByLocationId(req, res) {
+    try {
+      const { id } = req.params;
+      const delivery = await DeliveryModel.getAllPendingDeliveryByLocationId(
+        id
+      );
+
+      if (!delivery) {
+        return res.status(404).json({ error: "No record found" });
+      }
+
+      res.json({ delivery });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Fetching delivery failed" });
+    }
+  }
 }
