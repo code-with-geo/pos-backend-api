@@ -12,6 +12,19 @@ import { InventoryRouter } from "./src/routes/inventoryRoute.js";
 import { CustomersRouter } from "./src/routes/customersRoute.js";
 import { OrdersRouter } from "./src/routes/ordersRoute.js";
 import { DeliveryRouter } from "./src/routes/deliveryRoute.js";
+import { CartRouter } from "./src/routes/cartRoute.js";
+import { CheckInventoryRouter } from "./src/routes/checkInventoryRoute.js";
+import { DayRouter } from "./src/routes/dayRoute.js";
+import { ExpensesRouter } from "./src/routes/expensesRoute.js";
+import { LogsRouter } from "./src/routes/logsRoute.js";
+import { MaintenanceRouter } from "./src/routes/maintenanceRoute.js";
+import { PaymentRouter } from "./src/routes/paymentRoute.js";
+import { StockAdjustmentRouter } from "./src/routes/stockAdjustmentRoute.js";
+import { StockInRouter } from "./src/routes/stockInRoute.js";
+import { TransactionsRouter } from "./src/routes/transactionsRoute.js";
+import { TransferInRouter } from "./src/routes/transferInRoute.js";
+import { TransferOutRouter } from "./src/routes/transferOutRoute.js";
+import { VoidRouter } from "./src/routes/voidRoute.js";
 
 dotenv.config();
 
@@ -48,6 +61,19 @@ app.use("/api/customers", CustomersRouter);
 app.use("/api/orders", OrdersRouter);
 // Delivery routes
 app.use("/api/delivery", DeliveryRouter);
+app.use("/api/cart", CartRouter);
+app.use("/api/check-inventory", CheckInventoryRouter);
+app.use("/api/day", DayRouter);
+app.use("/api/expenses", ExpensesRouter);
+app.use("/api/logs", LogsRouter);
+app.use("/api/maintenance", MaintenanceRouter);
+app.use("/api/payments", PaymentRouter);
+app.use("/api/stock-adjustments", StockAdjustmentRouter);
+app.use("/api/stock-in", StockInRouter);
+app.use("/api/transactions", TransactionsRouter);
+app.use("/api/transferin", TransferInRouter);
+app.use("/api/transferout", TransferOutRouter);
+app.use("/api/void", VoidRouter);
 
 const PORT = process.env.PORT || 5000;
 
