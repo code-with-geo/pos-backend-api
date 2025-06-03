@@ -4,6 +4,8 @@ import { UsersController } from "../controllers/usersController.js";
 
 const router = express.Router();
 
+router.post("/register", UsersController.register);
+router.post("/login", UsersController.login);
 router.post("/create", AuthMiddleware.verifyToken, UsersController.createUser);
 router.put(
   "/update/:id",

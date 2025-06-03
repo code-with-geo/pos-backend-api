@@ -12,7 +12,7 @@ export class User {
     this.locationId = locationId;
   }
 
-  //User registration for auth
+  // User registration
   static async register(name, username, password, isRole, status, locationId) {
     const hashedPassword = await bcrypt.hash(password, 10);
     const [result] = await dbConnection.query(
@@ -22,28 +22,40 @@ export class User {
     return this.findById(result.insertId);
   }
 
+  // Find user by Id (returns plain DB row)
   static async findById(Id) {
     const [result] = await dbConnection.query(
       "SELECT * FROM Users WHERE Id = ?",
       [Id]
     );
-    return result.length > 0 ? result[0] : null; // Return first result or null if not found
+    return result.length > 0 ? result[0] : null;
   }
 
-  //Get user by username
+  // Get user by username - returns plain object for login etc.
   static async findByUsername(username) {
     const [rows] = await dbConnection.query(
       "SELECT * FROM Users WHERE Username = ?",
       [username]
     );
+
     if (rows.length > 0) {
-      const { Id, Username, Password, Name, IsRole, Status, LocationId } =
-        rows[0];
-      return new User(Id, Username, Password, Name, IsRole, Status, LocationId);
+      const user = rows[0];
+      // Return plain object with consistent field names
+      return {
+        id: user.Id,
+        username: user.username,
+        password: user.password,
+        name: user.name,
+        isRole: user.isRole,
+        status: user.status,
+        locationId: user.locationId,
+      };
     }
+
     return null;
   }
 
+  // Create a new user
   static async createUser(
     name,
     username,
@@ -60,6 +72,7 @@ export class User {
     return this.findById(result.insertId);
   }
 
+  // Update user details
   static async updateUser(
     id,
     name,
@@ -69,22 +82,39 @@ export class User {
     status,
     locationId
   ) {
-    let hashedPassword = password ? await bcrypt.hash(password, 10) : null;
+    let sql = `
+      UPDATE Users SET 
+        Name = ?, 
+        Username = ?, 
+        IsRole = ?, 
+        Status = ?, 
+        LocationId = ?
+    `;
+    let values = [name, username, isRole, status, locationId];
 
-    const [result] = await dbConnection.query(
-      `UPDATE Users 
-         SET Name = ?, Username = ?, ${
-           password ? "Password = ?, " : ""
-         } IsRole = ?, Status = ?, LocationId = ?
-         WHERE Id = ?`,
-      password
-        ? [name, username, hashedPassword, isRole, status, locationId, id]
-        : [name, username, isRole, status, locationId, id]
-    );
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      sql = `
+        UPDATE Users SET 
+          Name = ?, 
+          Username = ?, 
+          Password = ?, 
+          IsRole = ?, 
+          Status = ?, 
+          LocationId = ?
+      `;
+      values = [name, username, hashedPassword, isRole, status, locationId];
+    }
+
+    sql += " WHERE Id = ?";
+    values.push(id);
+
+    const [result] = await dbConnection.query(sql, values);
 
     return result.affectedRows > 0 ? this.findById(id) : null;
   }
 
+  // Delete user by id
   static async deleteUser(id) {
     const [result] = await dbConnection.query(
       "DELETE FROM Users WHERE Id = ?",

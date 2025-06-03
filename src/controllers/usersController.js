@@ -7,6 +7,55 @@ import { AuthController } from "./authController.js";
 dotenv.config();
 
 export class UsersController {
+  static async register(req, res) {
+    try {
+      const { name, username, password, isrole, status, locationId } = req.body;
+
+      const existingUser = await User.findByUsername(username);
+      if (existingUser) {
+        return res.status(400).json({ error: "Username already exists" });
+      }
+
+      const newUser = await User.register(
+        name,
+        username,
+        password,
+        isrole,
+        status,
+        locationId
+      );
+      const token = AuthController.generateToken(newUser);
+
+      res.status(201).json({ user: newUser, token });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Registration failed" });
+    }
+  }
+
+  static async login(req, res) {
+    try {
+      const { username, password } = req.body;
+
+      const user = await User.findByUsername(username);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
+
+      const token = AuthController.generateToken(user);
+
+      res.json({ message: "Login successful", user, token });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Login failed" });
+    }
+  }
+
   static async createUser(req, res) {
     try {
       const { name, username, password, isrole, status, locationId } = req.body;
