@@ -1,6 +1,11 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import http from "http";
+import { Server } from "socket.io";
+import jwt from "jsonwebtoken";
+
+// Import all routes
 import { AuthRouter } from "./src/routes/authRoute.js";
 import { UsersRouter } from "./src/routes/usersRoute.js";
 import { SuppliersRoute } from "./src/routes/suppliersRoute.js";
@@ -25,6 +30,7 @@ import { TransactionsRouter } from "./src/routes/transactionsRoute.js";
 import { TransferInRouter } from "./src/routes/transferInRoute.js";
 import { TransferOutRouter } from "./src/routes/transferOutRoute.js";
 import { VoidRouter } from "./src/routes/voidRoute.js";
+import { CryptoRouter } from "./src/routes/cryptoRoutes.js";
 
 dotenv.config();
 
@@ -39,27 +45,17 @@ app.use(
   })
 );
 
-// Authentication routes
+// Attach all API routes
 app.use("/api/auth", AuthRouter);
-// Users routes
 app.use("/api/users", UsersRouter);
-// Suppliers routes
 app.use("/api/suppliers", SuppliersRoute);
-// Locations routes
 app.use("/api/locations", LocationsRoute);
-// Category routes
 app.use("/api/category", CategoryRoute);
-// Products routes
 app.use("/api/products", ProductsRoute);
-// Discounts routes
 app.use("/api/discounts", DiscountsRouter);
-// Invetory routes
 app.use("/api/inventory", InventoryRouter);
-// Customer routes
 app.use("/api/customers", CustomersRouter);
-// Orders routes
 app.use("/api/orders", OrdersRouter);
-// Delivery routes
 app.use("/api/delivery", DeliveryRouter);
 app.use("/api/cart", CartRouter);
 app.use("/api/check-inventory", CheckInventoryRouter);
@@ -74,9 +70,60 @@ app.use("/api/transactions", TransactionsRouter);
 app.use("/api/transferin", TransferInRouter);
 app.use("/api/transferout", TransferOutRouter);
 app.use("/api/void", VoidRouter);
+app.use("/api/crypto", CryptoRouter);
+
+// Create HTTP server
+const server = http.createServer(app);
+
+// Setup Socket.IO server
+const io = new Server(server, {
+  cors: {
+    origin: process.env.CLIENT_URL,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  },
+});
+
+// WebSocket token authentication middleware
+io.use((socket, next) => {
+  const token = socket.handshake.auth?.token;
+
+  if (!token) {
+    return next(new Error("Authentication error: Token missing"));
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    socket.user = decoded; // Attach user data to the socket object
+    next();
+  } catch (err) {
+    console.error("Socket Authentication Error:", err.message);
+    return next(new Error("Authentication error: Invalid token"));
+  }
+});
+
+// WebSocket connection handler
+io.on("connection", (socket) => {
+  console.log(
+    `New client connected: ${socket.id}, User: ${socket.user.username}`
+  );
+
+  socket.on("updateDatabase", (updateDatabase) => {
+    io.emit("updateDatabase", updateDatabase); // Notify all clients
+  });
+
+  socket.on("disconnect", () => {
+    console.log(`Client disconnected: ${socket.id}`);
+  });
+});
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
+// Start HTTP + WebSocket server
+server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+export { io };
+
+//X0Ahk7rEg6C(FjUa

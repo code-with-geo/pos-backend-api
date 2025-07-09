@@ -17,5 +17,16 @@ router.delete(
   AuthMiddleware.verifyToken,
   CartController.deleteCart
 );
+router.post(
+  "/create-cart-view",
+  AuthMiddleware.verifyToken,
+  CartController.createCartViewHandler
+); //Use to create vw_cart
+
+router.post(
+  "/create-summary-view",
+  AuthMiddleware.verifyToken,
+  CartController.createSummaryViewHandler
+); //Use to create vw_SalesSummary
 
 export { router as CartRouter };

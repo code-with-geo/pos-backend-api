@@ -1,12 +1,26 @@
 import express from "express";
-import { ProductController } from "../controllers/productsController.js";
+import { ProductsController } from "../controllers/productsController.js";
+import { AuthMiddleware } from "../middelwares/authMiddleware.js";
 
 const router = express.Router();
 
-router.post("/create", ProductController.createProduct);
-router.get("/", ProductController.getAllProducts);
-router.get("/:id", ProductController.getProductById);
-router.put("/update/:id", ProductController.updateProduct);
-router.delete("/delete/:id", ProductController.deleteProduct);
+router.post("/create", AuthMiddleware.verifyToken, ProductsController.create);
+router.get("/", AuthMiddleware.verifyToken, ProductsController.getAll);
+router.get("/:id", AuthMiddleware.verifyToken, ProductsController.getById);
+router.put(
+  "/update/:id",
+  AuthMiddleware.verifyToken,
+  ProductsController.update
+);
+router.delete(
+  "/delete/:id",
+  AuthMiddleware.verifyToken,
+  ProductsController.delete
+);
+router.post(
+  "/create-stock-monitor-view",
+  AuthMiddleware.verifyToken,
+  ProductsController.createStockMonitorViewHandler
+);
 
 export { router as ProductsRoute };

@@ -17,4 +17,6 @@ router.delete(
   AuthMiddleware.verifyToken,
   UsersController.deleteUser
 );
+router.get("/", AuthMiddleware.verifyToken, UsersController.getAllUsers);
+router.get("/:id", AuthMiddleware.verifyToken, UsersController.getAllUsers);
 export { router as UsersRouter };

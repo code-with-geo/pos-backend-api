@@ -64,4 +64,31 @@ export class CartController {
       res.status(500).json({ error: "Deleting cart failed" });
     }
   }
+
+  static async createCartViewHandler(req, res) {
+    try {
+      await Cart.createCartView();
+      res.status(200).json({ message: "vw_cart view created successfully" });
+    } catch (err) {
+      res
+        .status(500)
+        .json({ message: "Error creating vw_cart view", error: err.message });
+    }
+  }
+
+  static async createSummaryViewHandler(req, res) {
+    try {
+      await Cart.createSummaryView();
+      res
+        .status(200)
+        .json({ message: "vw_SalesSummary view created successfully" });
+    } catch (err) {
+      res
+        .status(500)
+        .json({
+          message: "Error creating vw_SalesSummary view",
+          error: err.message,
+        });
+    }
+  }
 }

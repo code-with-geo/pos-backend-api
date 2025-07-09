@@ -47,9 +47,17 @@ export class UsersController {
         return res.status(401).json({ error: "Invalid credentials" });
       }
 
+      if (user.status == 0) {
+        return res.status(404).json({ error: "User disabled" });
+      }
+
       const token = AuthController.generateToken(user);
 
-      res.json({ message: "Login successful", user, token });
+      res.json({
+        message: "Login successful",
+        user,
+        token,
+      });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Login failed" });
@@ -133,6 +141,28 @@ export class UsersController {
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "User deletion failed" });
+    }
+  }
+
+  static async getAllUsers(req, res) {
+    try {
+      const user = await User.getAllUsers();
+      res.status(200).json({ user: user });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Getting all users failed" });
+    }
+  }
+
+  static async getAllUsersByLocationId(req, res) {
+    try {
+      const { id } = req.params;
+      const user = await User.getAllUsersByLocationId(id);
+      console.log(user);
+      res.status(200).json({ user: user });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Getting all users failed" });
     }
   }
 }

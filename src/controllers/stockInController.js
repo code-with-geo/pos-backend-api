@@ -70,4 +70,29 @@ export class StockInController {
       res.status(500).json({ error: "Deleting stock in record failed" });
     }
   }
+
+  static async getExpiryAlerts(req, res) {
+    try {
+      const { type } = req.query; // 'expired', 'near', or 'alert'
+      const alertType = type || "alert"; // default to 'alert' if not provided
+
+      const alerts = await StockIn.getExpiryAlert(alertType);
+      res.status(200).json(alerts);
+    } catch (error) {
+      console.error("Error fetching expiry alerts:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  }
+
+  static async createStockInViewHandler(req, res) {
+    try {
+      await StockIn.createStockInView();
+      res.status(200).json({ message: "vw_stockIn view created successfully" });
+    } catch (err) {
+      res.status(500).json({
+        message: "Error creating vw_stockIn view",
+        error: err.message,
+      });
+    }
+  }
 }

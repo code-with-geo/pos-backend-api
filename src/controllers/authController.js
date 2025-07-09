@@ -47,7 +47,7 @@ export class AuthController {
       const user = await User.findByUsername(username);
       if (!user) return res.status(401).json({ error: "Invalid credentials" });
       const isMatch = await bcrypt.compare(password, user.password);
-
+      console.log(isMatch);
       if (!isMatch)
         return res.status(401).json({ error: "Invalid credentials" });
 

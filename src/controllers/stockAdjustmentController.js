@@ -70,4 +70,18 @@ export class StockAdjustmentController {
       res.status(500).json({ error: "Deleting stock adjustment failed" });
     }
   }
+
+  static async createStockAdjustmentViewHandler(req, res) {
+    try {
+      await StockAdjustment.createStockAdjustmentView();
+      res
+        .status(200)
+        .json({ message: "vw_stockAdjustment view created successfully" });
+    } catch (err) {
+      res.status(500).json({
+        message: "Error creating vw_stockAdjustment view",
+        error: err.message,
+      });
+    }
+  }
 }

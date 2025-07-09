@@ -22,6 +22,21 @@ export class User {
     return this.findById(result.insertId);
   }
 
+  // Get all users
+  static async getAllUsers() {
+    const [result] = await dbConnection.query("SELECT * FROM Users");
+    return result;
+  }
+
+  // Get all users by Location Id
+  static async getAllUsersByLocationId(locationId) {
+    const [result] = await dbConnection.query(
+      "SELECT * FROM Users WHERE LocationId = ?",
+      [locationId]
+    );
+    return result;
+  }
+
   // Find user by Id (returns plain DB row)
   static async findById(Id) {
     const [result] = await dbConnection.query(

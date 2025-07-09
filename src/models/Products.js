@@ -1,127 +1,128 @@
 import dbConnection from "../config/databaseConfig.js";
 
 export class Products {
-  // Create a new product
-  static async createProduct(
-    barcode,
-    name,
-    description,
-    supplierPrice,
-    retailPrice,
-    wholesalePrice,
-    reorderLevel,
-    remarks,
-    isVat,
-    status,
-    categoryId
-  ) {
+  static async create(data) {
+    const {
+      barcode,
+      description,
+      unit,
+      initialQty,
+      qty,
+      supplierPrice,
+      retailPrice,
+      wholesalePrice,
+      reorder,
+      vat,
+      remarks,
+    } = data;
     const [result] = await dbConnection.query(
       `INSERT INTO Products 
-      (Barcode, Name, Description, SupplierPrice, RetailPrice, WholesalePrice, ReorderLevel, Remarks, IsVat, Status, CategoryId) 
+      (barcode, description, unit, initialQty, qty, supplierPrice, retailPrice, wholesalePrice, reorder, vat, remarks)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         barcode,
-        name,
         description,
+        unit,
+        initialQty,
+        qty,
         supplierPrice,
         retailPrice,
         wholesalePrice,
-        reorderLevel,
+        reorder,
+        vat,
         remarks,
-        isVat,
-        status,
-        categoryId,
       ]
     );
     return this.findById(result.insertId);
   }
 
-  // Find product by ID
   static async findById(id) {
     const [result] = await dbConnection.query(
-      "SELECT * FROM Products WHERE Id = ?",
+      "SELECT * FROM Products WHERE id = ?",
       [id]
     );
     return result.length > 0 ? result[0] : null;
   }
 
-  // Update product details
-  static async updateProduct(
-    id,
-    barcode,
-    name,
-    description,
-    supplierPrice,
-    retailPrice,
-    wholesalePrice,
-    reorderLevel,
-    remarks,
-    isVat,
-    status,
-    categoryId
-  ) {
+  static async getAll() {
+    const [result] = await dbConnection.query("SELECT * FROM Products");
+    return result;
+  }
+
+  static async update(id, data) {
+    const {
+      barcode,
+      description,
+      unit,
+      initialQty,
+      qty,
+      supplierPrice,
+      retailPrice,
+      wholesalePrice,
+      reorder,
+      vat,
+      remarks,
+    } = data;
     const [result] = await dbConnection.query(
-      `UPDATE Products 
-      SET Barcode = ?, Name = ?, Description = ?, SupplierPrice = ?, RetailPrice = ?, WholesalePrice = ?, ReorderLevel = ?, Remarks = ?, IsVat = ?, Status = ?, CategoryId = ? 
-      WHERE Id = ?`,
+      `UPDATE Products SET
+        barcode = ?, description = ?, unit = ?, initialQty = ?, qty = ?, 
+        supplierPrice = ?, retailPrice = ?, wholesalePrice = ?, reorder = ?, vat = ?, remarks = ?
+       WHERE id = ?`,
       [
         barcode,
-        name,
         description,
+        unit,
+        initialQty,
+        qty,
         supplierPrice,
         retailPrice,
         wholesalePrice,
-        reorderLevel,
+        reorder,
+        vat,
         remarks,
-        isVat,
-        status,
-        categoryId,
         id,
       ]
     );
     return result.affectedRows > 0 ? this.findById(id) : null;
   }
 
-  // Delete product by ID
-  static async deleteProduct(id) {
+  static async delete(id) {
     const [result] = await dbConnection.query(
-      "DELETE FROM Products WHERE Id = ?",
+      "DELETE FROM Products WHERE id = ?",
       [id]
     );
     return result.affectedRows > 0;
   }
 
-  // Get all products
-  static async getAllProducts() {
+  static async createStockMonitorView() {
     const query = `
-    SELECT P.Id, 
-           P.Barcode, 
-           P.Name, 
-           P.Description, 
-           P.SupplierPrice, 
-           P.RetailPrice,
-           P.WholesalePrice,
-           P.ReorderLevel,
-           P.Remarks,
-           P.IsVat,
-           P.Status,
-           P.DateCreated,
-           P.CategoryId AS ProductCategoryId,
-           C.CategoryId AS CategoryId,
-           C.Name AS CategoryName
-    FROM Products P 
-    INNER JOIN Category C ON P.CategoryId = C.CategoryId;
+    CREATE OR REPLACE VIEW vw_stockMonitor AS
+    SELECT
+      p.id,
+      p.barcode,
+      p.description,
+      p.unit,
+      p.qty + IFNULL(SUM(c.qty), 0) AS startInventory,
+      IFNULL(SUM(c.qty), 0) AS qtySold,
+      p.qty AS available
+    FROM Products AS p
+    INNER JOIN Cart AS c ON p.id = c.pid
+    WHERE c.status = 'Completed'
+      AND DATE(c.date) = CURDATE()
+    GROUP BY
+      p.id,
+      p.barcode,
+      p.description,
+      p.unit,
+      p.qty
   `;
 
-    console.log("Executing SQL Query:\n", query);
-
     try {
-      const [result] = await dbConnection.query(query);
-      console.log("Query Result:\n", JSON.stringify(result, null, 2));
-      return result;
+      await dbConnection.query(query);
+      console.log("View 'vw_stockMonitor' created successfully.");
     } catch (error) {
-      console.error("Query Execution Error:", error);
-      return [];
+      console.error("Failed to create vw_stockMonitor:", error.message);
+      throw error;
     }
   }
 }

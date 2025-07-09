@@ -118,4 +118,16 @@ export class VoidController {
       res.status(500).json({ error: "Deleting void entry failed" });
     }
   }
+
+  static async createVoidViewHandler(req, res) {
+    try {
+      await Void.createVoidView();
+      res.status(200).json({ message: "vw_void view created successfully" });
+    } catch (err) {
+      res.status(500).json({
+        message: "Error creating vw_void view",
+        error: err.message,
+      });
+    }
+  }
 }

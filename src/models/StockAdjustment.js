@@ -39,4 +39,31 @@ export class StockAdjustment {
     );
     return result.affectedRows > 0;
   }
+
+  static async createStockAdjustmentView() {
+    const viewQuery = `
+    CREATE OR REPLACE VIEW vw_stockAdjustment AS
+    SELECT
+      StockAdjustment.id,
+      Products.id AS pid,
+      Products.barcode,
+      Products.description,
+      StockAdjustment.qty,
+      StockAdjustment.action,
+      StockAdjustment.reason,
+      StockAdjustment.date,
+      StockAdjustment.username
+    FROM
+      StockAdjustment
+    INNER JOIN Products ON StockAdjustment.pid = Products.id
+  `;
+
+    try {
+      await dbConnection.query(viewQuery);
+      console.log("View 'vw_stockAdjustment' created successfully.");
+    } catch (error) {
+      console.error("Failed to create vw_stockAdjustment:", error.message);
+      throw error;
+    }
+  }
 }

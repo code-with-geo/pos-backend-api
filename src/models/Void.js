@@ -86,4 +86,32 @@ export class Void {
     ]);
     return result.affectedRows > 0;
   }
+
+  static async createVoidView() {
+    const query = `
+    CREATE OR REPLACE VIEW vw_void AS
+    SELECT
+      v.invoice,
+      v.pid,
+      p.description,
+      v.markupPrice,
+      v.qty,
+      v.discount,
+      v.total,
+      v.action,
+      v.reason,
+      v.cashier,
+      v.date
+    FROM Void AS v
+    INNER JOIN Products AS p ON v.pid = p.id
+  `;
+
+    try {
+      await dbConnection.query(query);
+      console.log("View 'vw_void' created successfully.");
+    } catch (error) {
+      console.error("Failed to create view 'vw_void':", error.message);
+      throw error;
+    }
+  }
 }
