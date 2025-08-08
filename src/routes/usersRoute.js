@@ -18,5 +18,9 @@ router.delete(
   UsersController.deleteUser
 );
 router.get("/", AuthMiddleware.verifyToken, UsersController.getAllUsers);
-router.get("/:id", AuthMiddleware.verifyToken, UsersController.getAllUsers);
+router.get(
+  "/:id",
+  AuthMiddleware.verifyToken,
+  UsersController.getAllUsersByLocationId
+);
 export { router as UsersRouter };

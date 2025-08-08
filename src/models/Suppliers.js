@@ -1,19 +1,39 @@
 import dbConnection from "../config/databaseConfig.js";
 
 export class Suppliers {
-  constructor(supplierId, name, address, contactPerson, contactNo, status) {
-    this.supplierId = supplierId;
-    this.name = name;
-    this.address = address;
+  constructor(
+    id,
+    supplierName,
+    supplierAddress,
+    contactPerson,
+    telphone,
+    locationId
+  ) {
+    this.id = id;
+    this.supplierName = supplierName;
+    this.supplierAddress = supplierAddress;
     this.contactPerson = contactPerson;
-    this.contactNo = contactNo;
-    this.status = status;
+    this.telphone = telphone;
+    this.locationId = locationId;
   }
 
-  static async createSupplier(name, contactPerson, contactNo, address, status) {
+  static async createSupplier(
+    supplierName,
+    supplierAddress,
+    contactPerson,
+    telphone,
+    locationId
+  ) {
     const [result] = await dbConnection.query(
-      "INSERT INTO Suppliers (Name, Address, ContactPerson, ContactNo, Status) VALUES (?, ?, ?, ?, ?)",
-      [name, address, contactPerson, contactNo, status]
+      "INSERT INTO Supplier (supplierName, supplierAddress, contactPerson, telphone, dateAdded, locationId) VALUES (?, ?, ?, ?, ?, ?)",
+      [
+        supplierName,
+        supplierAddress,
+        contactPerson,
+        telphone,
+        new Date(),
+        locationId,
+      ]
     );
     return this.findById(result.insertId);
   }
@@ -21,7 +41,7 @@ export class Suppliers {
   // Find supplier by ID
   static async findById(id) {
     const [result] = await dbConnection.query(
-      "SELECT * FROM Suppliers WHERE SupplierId = ?",
+      "SELECT * FROM Supplier WHERE Id = ?",
       [id]
     );
     return result.length > 0 ? result[0] : null;
@@ -29,7 +49,7 @@ export class Suppliers {
 
   static async findByName(name) {
     const [result] = await dbConnection.query(
-      "SELECT * FROM Suppliers WHERE Name = ?",
+      "SELECT * FROM Supplier WHERE supplierName = ?",
       [name]
     );
     return result.length > 0 ? result[0] : null;
@@ -38,17 +58,17 @@ export class Suppliers {
   // Update supplier details
   static async updateSupplier(
     id,
-    name,
+    supplierName,
+    supplierAddress,
     contactPerson,
-    contactNo,
-    address,
-    status
+    telphone,
+    locationId
   ) {
     const [result] = await dbConnection.query(
-      `UPDATE Suppliers 
-       SET Name = ?, ContactPerson = ?, ContactNo = ?, Address = ?, Status = ? 
-       WHERE SupplierId = ?`,
-      [name, contactPerson, contactNo, address, status, id]
+      `UPDATE Supplier 
+       SET supplierName = ?, supplierAddress = ?, contactPerson = ?, telphone = ?, locationId = ? 
+       WHERE Id = ?`,
+      [supplierName, supplierAddress, contactPerson, telphone, locationId, id]
     );
     return result.affectedRows > 0 ? this.findById(id) : null;
   }
@@ -56,9 +76,17 @@ export class Suppliers {
   // Delete supplier by ID
   static async deleteSupplier(id) {
     const [result] = await dbConnection.query(
-      "DELETE FROM Suppliers WHERE SupplierId = ?",
+      "DELETE FROM Supplier WHERE Id = ?",
       [id]
     );
     return result.affectedRows > 0;
+  }
+
+  static async getAllSuppliersByLocationId(locationId) {
+    const [result] = await dbConnection.query(
+      "SELECT * FROM Supplier WHERE locationId = ?",
+      [locationId]
+    );
+    return result;
   }
 }
